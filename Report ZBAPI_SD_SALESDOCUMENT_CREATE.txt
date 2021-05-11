@@ -1,0 +1,1620 @@
+*&---------------------------------------------------------------------*
+*& Report ZBAPI_SD_SALESDOCUMENT_CREATE
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT zbapi_sd_salesdocument_create.
+
+CLASS lcl_salesdocument_test DEFINITION.
+
+  PUBLIC SECTION.
+
+    METHODS:
+      get_sales_header    EXPORTING es_sales_header_in  TYPE bapisdhd1
+                                    es_sales_header_inx TYPE bapisdhd1x,
+      get_sales_partners  EXPORTING et_sales_partners   TYPE esales_bapiparnr_tab,
+      get_sales_items     EXPORTING et_sales_items_in  TYPE bapisditm_tt
+                                    et_sales_items_inx TYPE bapisditmx_tt,
+      get_conditions  EXPORTING et_conditions_in  TYPE esales_bapicond_tab
+                                et_conditions_inx TYPE esales_bapicondx_tab,
+      get_sales_texts EXPORTING et_sales_texts TYPE bapisdtext_t.
+
+  PRIVATE SECTION.
+    METHODS:
+      get_sales_item_010 EXPORTING es_sales_item_in  TYPE bapisditm
+                                   es_sales_item_inx TYPE bapisditmx,
+      get_sales_item_020 EXPORTING es_sales_item_in  TYPE bapisditm
+                                   es_sales_item_inx TYPE bapisditmx,
+      get_condition_010  EXPORTING es_condition_in  TYPE bapicond
+                                   es_condition_inx TYPE bapicondx,
+      get_condition_020  EXPORTING es_condition_in  TYPE bapicond
+                                   es_condition_inx TYPE bapicondx,
+      get_sales_texts_010 EXPORTING et_sales_texts TYPE bapisdtext_t,
+      get_sales_texts_020 EXPORTING et_sales_texts TYPE bapisdtext_t.
+
+ENDCLASS.
+
+CLASS lcl_salesdocument_test IMPLEMENTATION.
+
+  METHOD get_sales_header.
+
+*--------------------------------------------------------------------*
+* SALES_HEADER_IN - Belegkopf
+*--------------------------------------------------------------------*
+
+*    es_sales_header_in-refobjtype           =                                                  "Objekttyp
+*    es_sales_header_in-refobjkey            =                                                  "Schlüssel
+*    es_sales_header_in-refdoctype           =                                                  "
+    es_sales_header_in-doc_type             = 'L2'.                                             "Verkaufsbelegart
+*    es_sales_header_in-collect_no           =                                                  "Submission
+    es_sales_header_in-sales_org            = '010'.                                            "Verkaufsorganisation
+    es_sales_header_in-distr_chan           = '10'.                                             "Vertriebsweg
+    es_sales_header_in-division             = '14'.                                             "Sparte
+*    es_sales_header_in-sales_grp            =                                                  "Verkäufergruppe
+*    es_sales_header_in-sales_off            =                                                  "Verkaufsbüro
+*    es_sales_header_in-req_date_h           =                                                  "Wunschlieferdatum
+*    es_sales_header_in-date_type            =                                                  "Periode zum Termin
+*    es_sales_header_in-purch_date           =                                                  "Bestelldatum
+*    es_sales_header_in-po_method            =                                                  "Bestellart
+*    es_sales_header_in-po_supplem           =                                                  "Zusatz
+*    es_sales_header_in-ref_1                =                                                  "Ihr Zeichen
+*    es_sales_header_in-name                 =                                                  "Name
+*    es_sales_header_in-telephone            =                                                  "Telefon
+*    es_sales_header_in-price_grp            =                                                  "Preisgruppe
+*    es_sales_header_in-cust_group           =                                                  "Kundengruppe
+*    es_sales_header_in-sales_dist           =                                                  "Kundenbezirk
+*    es_sales_header_in-price_list           =                                                  "Preisliste
+*    es_sales_header_in-incoterms1           =                                                  "Incoterms
+*    es_sales_header_in-incoterms2           =                                                  "Incoterms Teil 2
+*    es_sales_header_in-pmnttrms             =                                                  "Zahlungsbedingung
+*    es_sales_header_in-dlv_block            =                                                  "Liefersperre
+*    es_sales_header_in-bill_block           =                                                  "Fakturasperre
+    es_sales_header_in-ord_reason           = '888'.                                            "Auftragsgrund
+*    es_sales_header_in-compl_dlv            =                                                  "Komplettlieferung
+*    es_sales_header_in-price_date           =                                                  "Preisdatum
+*    es_sales_header_in-qt_valid_f           =                                                  "Angebot gültig von
+*    es_sales_header_in-qt_valid_t           =                                                  "Angebot gültig bis
+*    es_sales_header_in-ct_valid_f           =                                                  "Gültigkeitsbeginn
+*    es_sales_header_in-ct_valid_t           =                                                  "Gültigkeitsende
+*    es_sales_header_in-cust_grp1            =                                                  "Vertriebsstatistik
+*    es_sales_header_in-cust_grp2            =                                                  "Aktivität
+*    es_sales_header_in-cust_grp3            =                                                  "Provisionspflicht
+*    es_sales_header_in-cust_grp4            =                                                  "Meldung Direkumsätze
+*    es_sales_header_in-cust_grp5            =                                                  "Provision in %
+*    es_sales_header_in-purch_no_c           =                                                  "Bestellnummer
+*    es_sales_header_in-purch_no_s           =                                                  "Bestellnummer
+*    es_sales_header_in-po_dat_s             =                                                  "Bestelldatum
+*    es_sales_header_in-po_meth_s            =                                                  "Bestellart
+*    es_sales_header_in-ref_1_s              =                                                  "Ihr Zeichen
+*    es_sales_header_in-sd_doc_cat           =                                                  "Vertriebsbelegtyp
+*    es_sales_header_in-doc_date             =                                                  "Belegdatum
+*    es_sales_header_in-war_date             =                                                  "Gewährleistung
+*    es_sales_header_in-ship_cond            =                                                  "Versandbedingung
+*    es_sales_header_in-pp_search            =                                                  "Bezeichnung
+*    es_sales_header_in-dun_count            =                                                  "Anzahl Mahnungen
+*    es_sales_header_in-dun_date             =                                                  "Letzte Mahnung
+*    es_sales_header_in-dlvschduse           =                                                  "Verwendung
+*    es_sales_header_in-pldlvstyp            =                                                  "Dispobeh.Abrufarten
+*    es_sales_header_in-ref_doc              =                                                  "Vorlagebeleg
+*    es_sales_header_in-comp_cde_b           =                                                  "FaktBuchungskreis
+*    es_sales_header_in-alttax_cls           =                                                  "Abweich.Steuerklasse
+*    es_sales_header_in-tax_class2           =                                                  "Steuerklassifi.2-Kd
+*    es_sales_header_in-tax_class3           =                                                  "Steuerklassifi.3-Kd
+*    es_sales_header_in-tax_class4           =                                                  "Steuerklassifi.4-Kd
+*    es_sales_header_in-tax_class5           =                                                  "Steuerklassifi.5-Kd
+*    es_sales_header_in-tax_class6           =                                                  "Steuerklassifi.6-Kd
+*    es_sales_header_in-tax_class7           =                                                  "Steuerklassifi.7-Kd
+*    es_sales_header_in-tax_class8           =                                                  "Steuerklassifi.8-Kd
+*    es_sales_header_in-tax_class9           =                                                  "Steuerklassifi.9-Kd
+*    es_sales_header_in-ref_doc_l            =                                                  "Referenz
+*    es_sales_header_in-ass_number           =                                                  "Zuordnung
+*    es_sales_header_in-refdoc_cat           =                                                  "Vorgängerbelegtyp
+*    es_sales_header_in-ordcomb_in           =                                                  "AuftrZusammenführung
+*    es_sales_header_in-bill_sched           =                                                  "Rechnungstermine
+*    es_sales_header_in-invo_sched           =                                                  "RechListenTermine
+*    es_sales_header_in-mn_invoice           =                                                  "Rechnungsnachbearb.
+*    es_sales_header_in-exrate_fi            =                                                  "Kurs f.Buchhaltung
+*    es_sales_header_in-add_val_dy           =                                                  "Zusätzl. Valutatage
+*    es_sales_header_in-fix_val_dy           =                                                  "Valuta-Fixdatum
+*    es_sales_header_in-pymt_meth            =                                                  "Zahlweg
+*    es_sales_header_in-accnt_asgn           =                                                  "Kontierungsgr. Deb.
+*    es_sales_header_in-exchg_rate           =                                                  "Kurs
+*    es_sales_header_in-bill_date            =                                                  "Fakturadatum
+*    es_sales_header_in-serv_date            =                                                  "Leistungserst.Dat
+*    es_sales_header_in-dunn_key             =                                                  "Mahnschlüssel
+*    es_sales_header_in-dunn_block           =                                                  "Mahnsperre
+*    es_sales_header_in-pmtgar_pro           =                                                  "Absicherungsschema
+*    es_sales_header_in-departm_no           =                                                  "Abteilung
+*    es_sales_header_in-rec_point            =                                                  "Empfangsstelle
+*    es_sales_header_in-doc_num_fi           =                                                  "Finanzdokumentnummer
+*    es_sales_header_in-cstcndgrp1           =                                                  "Konditionsgruppe 1
+*    es_sales_header_in-cstcndgrp2           =                                                  "Konditionsgruppe 2
+*    es_sales_header_in-cstcndgrp3           =                                                  "Konditionsgruppe 3
+*    es_sales_header_in-cstcndgrp4           =                                                  "Konditionsgruppe 4
+*    es_sales_header_in-cstcndgrp5           =                                                  "Konditionsgruppe 5
+*    es_sales_header_in-dlv_time             =                                                  "Lieferzeit
+*    es_sales_header_in-currency             =                                                 "Belegwährung
+*    es_sales_header_in-curr_iso             =                                                  "ISO-Code Währung
+*    es_sales_header_in-created_by           =                                                  "Angelegt von
+*    es_sales_header_in-taxdep_cty           =                                                  "SteuerAbgangsland
+*    es_sales_header_in-taxdst_cty           =                                                  "SteuerEmpfangsland
+*    es_sales_header_in-eutri_deal           =                                                  "EU-Dreiecksgeschäft
+*    es_sales_header_in-mast_contr           =                                                  "Gruppenkontrakt
+*    es_sales_header_in-ref_proc             =                                                  "GrpReferenzschema
+*    es_sales_header_in-chkprtauth           =                                                  "Abrufprüfung Partner
+*    es_sales_header_in-cmlqty_dat           =                                                  "Datum AuftragsFZ
+*    es_sales_header_in-version              =                                                  "Version
+*    es_sales_header_in-notif_no             =                                                  "Meldung
+*    es_sales_header_in-wbs_elem             =                                                  "PSP-Element
+*    es_sales_header_in-exch_rate_fi_v       =                                                  "Kurs f.Buchhaltung
+*    es_sales_header_in-exchg_rate_v         =                                                  "Kurs
+*    es_sales_header_in-fkk_conacct          =                                                  "char12
+*    es_sales_header_in-campaign             =                                                  "CGPL_GUID
+*    es_sales_header_in-doc_class            =                                                  "Ursprungsssystem
+*    es_sales_header_in-h_curr               =                                                  "Währung
+*    es_sales_header_in-h_curr_iso           =                                                  "Iso-Code
+*    es_sales_header_in-ship_type            =                                                  "Versandart
+*    es_sales_header_in-s_proc_ind           =                                                  "Sonderabwicklungskennz.
+*    es_sales_header_in-ref_doc_l_long       =                                                  "Referenz
+*    es_sales_header_in-line_time            =                                                  "Wunschlieferuhrzeit
+*    es_sales_header_in-calc_motive          =                                                  "Berechnungsmotiv
+*    es_sales_header_in-psm_pstng_date       =                                                  "Buchungsdatum
+*    es_sales_header_in-treasury_acc_symbol  =                                                  "Treasury-Kontensymbol
+*    es_sales_header_in-business_event_tcode =                                                  "TCode GeschEreignis
+*    es_sales_header_in-modification_allowed =                                                  "Änderung zulässig
+*    es_sales_header_in-cancellation_allowed =                                                  "Storno zulässig
+*    es_sales_header_in-payment_methods      =                                                  "Zahlwege
+*    es_sales_header_in-business_partner_no  =                                                  "Geschäftspartnernr.
+*    es_sales_header_in-reporting_freq       =                                                  "Berichtshäufigkeit
+*    es_sales_header_in-sepa_mandate_id      =                                                  "Mandatsreferenz
+*    es_sales_header_in-sd_doc_cat_long      =                                                  "SD-Belegtyp
+*    es_sales_header_in-refdoc_cat_long      =                                                  "SD-Belegtyp
+*    es_sales_header_in-incotermsv           =                                                  "Incoterm-Version
+*    es_sales_header_in-incoterms2l          =                                                  "Incoterms Standort 1
+*    es_sales_header_in-incoterms3l          =                                                  "Incoterms Standort 2
+
+*--------------------------------------------------------------------*
+* SALES_HEADER_INX - Ankreuzleiste Belegkopf
+
+*Die einzelnen Komponenten eines Vertreibsbeleges können sowohl mit auch als ohne Ankreuzleiste erzeugt werden.
+*Entscheidet man sich für die erstere Möglichkeit, werden nur Felder übernommen, die ungleich SPACE sind.
+*Im zweiten Fall (Feld UPDATEFLAG der Leiste muß I sein) werden nur Felder übernommen, die in der Leiste ein 'X' haben.
+*Dadurch können Felder, die vom System mit Defaultwerten vorbelegt werden, wieder auf SPACE gesetzt werden.
+*--------------------------------------------------------------------*
+
+
+*    es_sales_header_inx-updateflag           =                                                  "
+*    es_sales_header_inx-doc_type             =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-collect_no           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-sales_org            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-distr_chan           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-division             =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-sales_grp            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-sales_off            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-req_date_h           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-date_type            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-purch_date           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-po_method            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-po_supplem           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-ref_1                =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-name                 =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-telephone            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-price_grp            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-cust_group           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-sales_dist           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-price_list           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-incoterms1           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-incoterms2           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-pmnttrms             =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-dlv_block            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-bill_block           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-ord_reason           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-compl_dlv            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-price_date           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-qt_valid_f           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-qt_valid_t           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-ct_valid_f           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-ct_valid_t           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-cust_grp1            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-cust_grp2            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-cust_grp3            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-cust_grp4            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-cust_grp5            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-purch_no_c           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-purch_no_s           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-po_dat_s             =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-po_meth_s            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-ref_1_s              =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-sd_doc_cat           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-doc_date             =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-war_date             =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-ship_cond            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-pp_search            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-dun_count            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-dun_date             =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-dlvschduse           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-pldlvstyp            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-ref_doc              =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-comp_cde_b           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-alttax_cls           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-tax_class2           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-tax_class3           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-tax_class4           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-tax_class5           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-tax_class6           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-tax_class7           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-tax_class8           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-tax_class9           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-ref_doc_l            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-ass_number           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-refdoc_cat           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-ordcomb_in           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-bill_sched           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-invo_sched           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-mn_invoice           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-exrate_fi            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-add_val_dy           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-fix_val_dy           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-pymt_meth            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-accnt_asgn           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-exchg_rate           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-bill_date            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-serv_date            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-dunn_key             =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-dunn_block           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-promotion            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-pmtgar_pro           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-departm_no           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-rec_point            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-poitm_no_s           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-doc_num_fi           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-cstcndgrp1           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-cstcndgrp2           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-cstcndgrp3           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-cstcndgrp4           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-cstcndgrp5           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-dlv_time             =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-currency             =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-taxdep_cty           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-taxdst_cty           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-eutri_deal           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-mast_contr           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-ref_proc             =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-chkprtauth           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-cmlqty_dat           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-version              =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-notif_no             =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-wbs_elem             =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-exch_rate_fi_v       =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-exchg_rate_v         =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-fkk_conacct          =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-campaign             =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-doc_class            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-h_curr               =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-ship_type            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-s_proc_ind           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-line_time            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-calc_motive          =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-psm_pstng_date       =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-treasury_acc_symbol  =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-business_event_tcode =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-modification_allowed =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-cancellation_allowed =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-payment_methods      =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-business_partner_no  =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-reporting_freq       =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-sepa_mandate_id      =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-sd_doc_cat_long      =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-refdoc_cat_long      =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-incotermsv           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-incoterms2l          =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_header_inx-incoterms3l          =                                                  "Änderungsinformation Nutzdatenfeld
+
+  ENDMETHOD.
+
+  METHOD get_sales_partners.
+
+    DATA ls_sales_partner TYPE bapiparnr.
+
+    ls_sales_partner-partn_role = 'AG'.                                           "Partnerrolle
+    ls_sales_partner-partn_numb = '0000000201'.                                   "Debitor
+*  ls_sales_partner-itm_number =                                                  "Position (SD)
+*  ls_sales_partner-title      =                                                  "Anrede
+*  ls_sales_partner-name       =                                                  "Name
+*  ls_sales_partner-name_2     =                                                  "Name 2
+*  ls_sales_partner-name_3     =                                                  "Name 3
+*  ls_sales_partner-name_4     =                                                  "Name 4
+*  ls_sales_partner-street     =                                                  "Straße
+*  ls_sales_partner-country    =                                                  "Länderschlüssel
+*  ls_sales_partner-countr_iso =                                                  "Land ISO
+*  ls_sales_partner-postl_code =                                                  "Postleitzahl
+*  ls_sales_partner-pobx_pcd   =                                                  "PLZ-Postfach
+*  ls_sales_partner-pobx_cty   =                                                  "Ort-Postfach
+*  ls_sales_partner-city       =                                                  "Ort
+*  ls_sales_partner-district   =                                                  "Ortsteil
+*  ls_sales_partner-region     =                                                  "Region
+*  ls_sales_partner-po_box     =                                                  "Postfach
+*  ls_sales_partner-telephone  =                                                  "Telefon-1
+*  ls_sales_partner-telephone2 =                                                  "Telefon-2
+*  ls_sales_partner-telebox    =                                                  "Teleboxnummer
+*  ls_sales_partner-fax_number =                                                  "Telefaxnummer
+*  ls_sales_partner-teletex_no =                                                  "Teletexnummer
+*  ls_sales_partner-telex_no   =                                                  "Telexnummer
+*  ls_sales_partner-langu      =                                                  "Sprachenschlüssel
+*  ls_sales_partner-langu_iso  =                                                  "Sprache (ISO 639)
+*  ls_sales_partner-unload_pt  =                                                  "Abladestelle
+*  ls_sales_partner-transpzone =                                                  "Transportzone
+*  ls_sales_partner-taxjurcode =                                                  "Steuerstandort
+*  ls_sales_partner-address    =                                                  "Adresse
+*  ls_sales_partner-priv_addr  =                                                  "Privatadresse
+*  ls_sales_partner-addr_type  =                                                  "Adreßtyp
+*  ls_sales_partner-addr_orig  =                                                  "Adreßherkunft
+*  ls_sales_partner-addr_link  =                                                  "Adreßnummer
+*  ls_sales_partner-refobjtype =                                                  "Objekttyp
+*  ls_sales_partner-refobjkey  =                                                  "Schlüssel
+*  ls_sales_partner-reflogsys  =                                                  "Logisches System
+
+    APPEND ls_sales_partner TO et_sales_partners.
+
+  ENDMETHOD.
+
+  METHOD get_sales_items.
+
+    DATA ls_sales_item_in  TYPE bapisditm.
+    DATA ls_sales_item_inx TYPE bapisditmx.
+
+    me->get_sales_item_010( IMPORTING es_sales_item_in = ls_sales_item_in
+                                      es_sales_item_inx = ls_sales_item_inx ).
+    APPEND ls_sales_item_in TO et_sales_items_in.
+    APPEND ls_sales_item_inx TO et_sales_items_inx.
+
+    CLEAR: ls_sales_item_in, ls_sales_item_inx.
+
+    me->get_sales_item_020( IMPORTING es_sales_item_in = ls_sales_item_in
+                                      es_sales_item_inx = ls_sales_item_inx ).
+    APPEND ls_sales_item_in TO et_sales_items_in.
+    APPEND ls_sales_item_inx TO et_sales_items_inx.
+
+  ENDMETHOD.
+
+  METHOD get_sales_item_010.
+
+*--------------------------------------------------------------------*
+* SALES_ITEMS_IN - Positionsdaten Position 010
+*--------------------------------------------------------------------*
+
+    es_sales_item_in-itm_number           = 10.                                               "Position
+*    es_sales_item_in-hg_lv_item           =                                                  "Übergeordn. Position
+*    es_sales_item_in-po_itm_no            =                                                  "Bestellposition
+    es_sales_item_in-material             = '000000000000004985'.                             "Material
+*    es_sales_item_in-alt_to_itm           =                                                  "Alternativ zu Pos.
+*    es_sales_item_in-cust_mat22           =                                                  "Kundenmaterial
+*    es_sales_item_in-batch                =                                                  "Charge
+*    es_sales_item_in-dlv_group            =                                                  "Liefergruppe
+*    es_sales_item_in-part_dlv             =                                                  "Teillieferung/Pos.
+*    es_sales_item_in-reason_rej           =                                                  "Absagegrund
+*    es_sales_item_in-bill_block           =                                                  "Sperre
+*    es_sales_item_in-bill_date            =                                                  "Fakturadatum
+*    es_sales_item_in-plant                =                                                  "Werk
+*    es_sales_item_in-store_loc            =                                                  "Lagerort
+    es_sales_item_in-target_qty           = 1.                                                "Zielmenge
+*    es_sales_item_in-target_qu            =                                                  "Zielmengeneinheit
+*    es_sales_item_in-t_unit_iso           =                                                  "ZielME ISO-Code
+*    es_sales_item_in-item_categ           = 'L2W'.                                            "Positionstyp
+*    es_sales_item_in-short_text           =                                                  "Bezeichnung
+*    es_sales_item_in-prc_group1           =                                                  "Materialgruppe 1
+*    es_sales_item_in-prc_group2           =                                                  "Materialgruppe 2
+*    es_sales_item_in-prc_group3           =                                                  "Materialgruppe 3
+*    es_sales_item_in-prc_group4           =                                                  "Materialgruppe 4
+*    es_sales_item_in-prc_group5           =                                                  "Materialgruppe 5
+*    es_sales_item_in-prod_hiera           =                                                  "Produkthierarchie
+*    es_sales_item_in-matl_group           =                                                  "Warengruppe
+*    es_sales_item_in-purch_no_c           =                                                  "Bestellnummer
+*    es_sales_item_in-purch_date           =                                                  "Bestelldatum
+*    es_sales_item_in-po_method            =                                                  "Bestellart
+*    es_sales_item_in-ref_1                =                                                  "Ihr Zeichen
+*    es_sales_item_in-purch_no_s           =                                                  "Bestellnummer
+*    es_sales_item_in-po_dat_s             =                                                  "Bestelldatum
+*    es_sales_item_in-po_meth_s            =                                                  "Bestellart
+*    es_sales_item_in-ref_1_s              =                                                  "Ihr Zeichen
+*    es_sales_item_in-poitm_no_s           =                                                  "Bestellpositionsnr.
+*    es_sales_item_in-price_grp            =                                                  "Preisgruppe
+*    es_sales_item_in-cust_group           =                                                  "Kundengruppe
+*    es_sales_item_in-sales_dist           =                                                  "Kundenbezirk
+*    es_sales_item_in-price_list           =                                                  "Preisliste
+*    es_sales_item_in-incoterms1           =                                                  "Incoterms
+*    es_sales_item_in-incoterms2           =                                                  "Incoterms Teil 2
+*    es_sales_item_in-ordcomp_in           =                                                  "AuftrZusammenführung
+*    es_sales_item_in-bill_sched           =                                                  "Rechnungstermine
+*    es_sales_item_in-invo_sched           =                                                  "RechListenTermine
+*    es_sales_item_in-mn_invoice           =                                                  "Rechnungsnachbearb.
+*    es_sales_item_in-ex_rate_fi           =                                                  "Kurs f.Buchhaltung
+*    es_sales_item_in-add_val_dy           =                                                  "Zusätzl. Valutatage
+*    es_sales_item_in-fix_val_dy           =                                                  "Valuta-Fixdatum
+*    es_sales_item_in-pmnttrms             =                                                  "Zahlungsbedingung
+*    es_sales_item_in-pymt_meth            =                                                  "Zahlweg
+*    es_sales_item_in-accnt_asgn           =                                                  "Kontierungsgr. Deb.
+*    es_sales_item_in-exchg_rate           =                                                  "Kurs
+*    es_sales_item_in-price_date           =                                                  "Preisdatum
+*    es_sales_item_in-serv_date            =                                                  "Leistungserst.Dat
+*    es_sales_item_in-dunn_key             =                                                  "Mahnschlüssel
+*    es_sales_item_in-dunn_block           =                                                  "Mahnsperre
+*    es_sales_item_in-promotion            =                                                  "Aktion
+*    es_sales_item_in-pmtgar_pro           =                                                  "Absicherungsschema
+*    es_sales_item_in-doc_num_fi           =                                                  "Finanzdokumentnummer
+*    es_sales_item_in-departm_no           =                                                  "Abteilung
+*    es_sales_item_in-rec_point            =                                                  "Empfangsstelle
+*    es_sales_item_in-cstcndgrp1           =                                                  "Konditionsgruppe 1
+*    es_sales_item_in-cstcndgrp2           =                                                  "Konditionsgruppe 2
+*    es_sales_item_in-cstcndgrp3           =                                                  "Konditionsgruppe 3
+*    es_sales_item_in-cstcndgrp4           =                                                  "Konditionsgruppe 4
+*    es_sales_item_in-cstcndgrp5           =                                                  "Konditionsgruppe 5
+*    es_sales_item_in-dlv_time             =                                                  "Lieferzeit
+*    es_sales_item_in-sales_unit           =                                                  "Verkaufsmengeneinh.
+*    es_sales_item_in-s_unit_iso           =                                                  "ISO-Code
+*    es_sales_item_in-trg_qty_no           =                                                  "Zähler Ziel -> Lager
+*    es_sales_item_in-trgqty_den           =                                                  "Nenner Ziel -> Lager
+*    es_sales_item_in-rnddlv_qty           =                                                  "Rundungsmenge Lief.
+*    es_sales_item_in-maxdevamnt           =                                                  "Abweichung absolut
+*    es_sales_item_in-maxdevper            =                                                  "Abweichung proz.
+*    es_sales_item_in-maxdev_day           =                                                  "Anz.Tage Abw.
+*    es_sales_item_in-usage_ind            =                                                  "Ausführung
+*    es_sales_item_in-fixed_quan           =                                                  "Menge ist fix
+*    es_sales_item_in-unlmt_dlv            =                                                  "Unbegrenzte Überl.
+*    es_sales_item_in-overdlvtol           =                                                  "Tol.Überlieferung
+*    es_sales_item_in-unddlv_tol           =                                                  "Tol.Unterlieferung
+*    es_sales_item_in-division             =                                                  "Sparte
+*    es_sales_item_in-salqtynum            =                                                  "Zaehler
+*    es_sales_item_in-salqtyden            =                                                  "Nenner
+*    es_sales_item_in-gross_wght           =                                                  "Bruttogewicht
+*    es_sales_item_in-net_weight           =                                                  "Nettogewicht
+*    es_sales_item_in-untof_wght           =                                                  "Gewichtseinheit
+*    es_sales_item_in-unof_wtiso           =                                                  "Gewichtseinheit ISO
+*    es_sales_item_in-volume               =                                                  "Volumen
+*    es_sales_item_in-volunit              =                                                  "Volumeneinheit
+*    es_sales_item_in-volunitiso           =                                                  "Volumeneinheit ISO
+*    es_sales_item_in-dlv_prio             =                                                  "Lieferpriorität
+*    es_sales_item_in-ship_point           =                                                  "Versandstelle/Annahmestelle
+*    es_sales_item_in-route                =                                                  "Route
+*    es_sales_item_in-created_by           =                                                  "Angelegt von
+*    es_sales_item_in-tax_class1           =                                                  "Steuerklassifikation
+*    es_sales_item_in-tax_class2           =                                                  "Steuerklassifikation
+*    es_sales_item_in-tax_class3           =                                                  "Steuerklassifikation
+*    es_sales_item_in-tax_class4           =                                                  "Steuerklassifikation
+*    es_sales_item_in-tax_class5           =                                                  "Steuerklassifikation
+*    es_sales_item_in-tax_class6           =                                                  "Steuerklassifikation
+*    es_sales_item_in-tax_class7           =                                                  "Steuerklassifikation
+*    es_sales_item_in-tax_class8           =                                                  "Steuerklassifikation
+*    es_sales_item_in-tax_class9           =                                                  "Steuerklassifikation
+*    es_sales_item_in-mat_pr_grp           =                                                  "Materialgruppe
+*    es_sales_item_in-val_type             =                                                  "Bewertungsart
+*    es_sales_item_in-fixdat_qty           =                                                  "Termin u.Menge fix
+*    es_sales_item_in-bomexpl_no           =                                                  "Seriennummer
+*    es_sales_item_in-resanalkey           =                                                  "Abgrenzungsschlüssel
+*    es_sales_item_in-reqmts_typ           =                                                  "Bedarfsart
+*    es_sales_item_in-no_gr_post           =                                                  "kein WE beim Kunden
+*    es_sales_item_in-bus_transt           =                                                  "Geschäftsart
+*    es_sales_item_in-overhd_key           =                                                  "Zuschlagsschlüssel
+*    es_sales_item_in-cstg_sheet           =                                                  "Kalkulationsschema
+*    es_sales_item_in-matfrgtgrp           =                                                  "MatFraGruppe
+*    es_sales_item_in-pldlvshdin           =                                                  "Planabrufvorschrift
+*    es_sales_item_in-seq_no               =                                                  "Sequenz-Nummer
+*    es_sales_item_in-bil_form             =                                                  "Fakturierform
+*    es_sales_item_in-dli_profil           =                                                  "DPP-Profil
+*    es_sales_item_in-rev_type             =                                                  "Erlösrealisierungstyp
+*    es_sales_item_in-begdem_per           =                                                  "Regel f. AbgrenzBeginndatum
+*    es_sales_item_in-pr_ref_mat           =                                                  "Preismaterial
+*    es_sales_item_in-refobjtype           =                                                  "Objekttyp
+*    es_sales_item_in-refobjkey            =                                                  "Schlüssel
+*    es_sales_item_in-reflogsys            =                                                  "Logisches System
+*    es_sales_item_in-order_prob           =                                                  "Auftr.Wahrscheinl
+*    es_sales_item_in-max_pl_dlv           =                                                  "Max.Teillieferungen
+*    es_sales_item_in-cfop_code            =                                                  "CFOP
+*    es_sales_item_in-taxlawicms           =                                                  "Gesetz ICMS
+*    es_sales_item_in-taxlawipi            =                                                  "Gesetz IPI
+*    es_sales_item_in-sd_taxcode           =                                                  "Steuerkennzeichen
+*    es_sales_item_in-assort_mod           =                                                  "Baustein
+*    es_sales_item_in-comp_quant           =                                                  "Komponentenmenge
+*    es_sales_item_in-target_val           =                                                  "Währungsbetrag an BAPI-Schnittstellen
+*    es_sales_item_in-currency             =                                                  "Belegwährung
+*    es_sales_item_in-curr_iso             =                                                  "ISO-Code Währung
+*    es_sales_item_in-profit_ctr           =                                                  "Profitcenter
+*    es_sales_item_in-orderid              =                                                  "Auftrag
+*    es_sales_item_in-wbs_elem             =                                                  "PSP-Element
+*    es_sales_item_in-deprec_per           =                                                  "Abschreibungsgrad
+*    es_sales_item_in-ref_doc              =                                                  "Vorlagebeleg
+*    es_sales_item_in-ref_doc_it           =                                                  "Vorlage Gesch. Pos.
+*    es_sales_item_in-ref_doc_ca           =                                                  "Vorgängerbelegtyp
+*    es_sales_item_in-cust_mat35           =                                                  "Kundenmaterial
+*    es_sales_item_in-exch_rate_fi_v       =                                                  "Kurs f.Buchhaltung
+*    es_sales_item_in-exchg_rate_v         =                                                  "Kurs
+*    es_sales_item_in-itemguid_atp         =                                                  "Guid für Position
+*    es_sales_item_in-val_contr            =                                                  "Wertkontraktnummer
+*    es_sales_item_in-val_con_i            =                                                  "Wertkontraktposition
+*    es_sales_item_in-config_id            =                                                  "Konfigurations ID
+*    es_sales_item_in-inst_id              =                                                  "Instanznummer
+*    es_sales_item_in-mat_ext              =                                                  "Materialnummer
+*    es_sales_item_in-mat_guid             =                                                  "GUID (extern)
+*    es_sales_item_in-mat_vers             =                                                  "Versionsnummer
+*    es_sales_item_in-p_mat_ext            =                                                  "Materialnummer
+*    es_sales_item_in-p_mat_guid           =                                                  "GUID (extern)
+*    es_sales_item_in-p_mat_vers           =                                                  "Versionsnummer
+*    es_sales_item_in-func_area            =                                                  "Funktionsbereich
+*    es_sales_item_in-altern_bom           =                                                  "StlAlternative
+*    es_sales_item_in-fkk_conacct          =                                                  "
+*    es_sales_item_in-ean_upc              =                                                  "EAN/UPC-Code
+*    es_sales_item_in-prodcat              =                                                  "Katalog
+*    es_sales_item_in-ship_type            =                                                  "Versandart
+*    es_sales_item_in-s_proc_ind           =                                                  "Sonderabwicklungskennz.
+*    es_sales_item_in-func_area_long       =                                                  "Funktionsbereich
+*    es_sales_item_in-bill_rel             =                                                  "Fakturarelevanz
+*    es_sales_item_in-vw_uepos             =                                                  "Verwendung UEPOS
+*    es_sales_item_in-campaign             =                                                  "CGPL_GUID
+*    es_sales_item_in-dlvschduse           =                                                  "Verwendung
+*    es_sales_item_in-cfop_long            =                                                  "CFOP
+*    es_sales_item_in-selection            =                                                  "Selektions-ID
+*    es_sales_item_in-mat_entrd            =                                                  "Eingeg. Material
+*    es_sales_item_in-log_system_own       =                                                  "Logisches System
+*    es_sales_item_in-itm_type_usage       =                                                  "Positionsverwendung
+*    es_sales_item_in-taxlawiss            =                                                  "ISS-Gesetz
+*    es_sales_item_in-mat_entrd_external   =                                                  "Materialnummer
+*    es_sales_item_in-mat_entrd_guid       =                                                  "GUID (extern)
+*    es_sales_item_in-mat_entrd_version    =                                                  "Versionsnummer
+*    es_sales_item_in-loc_taxcat           =                                                  "Steuerart
+*    es_sales_item_in-loc_zerovat          =                                                  "Grund 0 MwSt.
+*    es_sales_item_in-loc_actcode          =                                                  "Tätigkeit BE-Steuer
+*    es_sales_item_in-loc_disttype         =                                                  "Verteilungsart
+*    es_sales_item_in-loc_txrelclas        =                                                  "Steuerrel.Klass
+*    es_sales_item_in-calc_motive          =                                                  "Berechnungsmotiv
+*    es_sales_item_in-compreas             =                                                  "Abkürzung Reklamationsgrund
+*    es_sales_item_in-fund                 =                                                  "Fonds
+*    es_sales_item_in-funds_ctr            =                                                  "Finanzstelle
+*    es_sales_item_in-cmmt_item            =                                                  "Finanzposition
+*    es_sales_item_in-grant_nbr            =                                                  "Förderung
+*    es_sales_item_in-budget_period        =                                                  "Budgetperiode
+*    es_sales_item_in-taxlawcofins         =                                                  "COFINS Gesetz
+*    es_sales_item_in-taxlawpis            =                                                  "PIS-Gesetz
+*    es_sales_item_in-treasury_acc_symbol  =                                                  "Treasury-Kontensymbol
+*    es_sales_item_in-business_event_tcode =                                                  "TCode GeschEreignis
+*    es_sales_item_in-modification_allowed =                                                  "Änderung zulässig
+*    es_sales_item_in-cancellation_allowed =                                                  "Storno zulässig
+*    es_sales_item_in-payment_methods      =                                                  "Zahlwege
+*    es_sales_item_in-business_partner_no  =                                                  "Geschäftspartnernr.
+*    es_sales_item_in-reporting_freq       =                                                  "Berichtshäufigkeit
+*    es_sales_item_in-sepa_mandate_id      =                                                  "Mandatsreferenz
+*    es_sales_item_in-req_segment          =                                                  "Bedarfssegment
+*    es_sales_item_in-revacc_refid         =                                                  "Erlösbuchhaltung: Ref.-ID
+*    es_sales_item_in-revacc_reftype       =                                                  "ErlösbuchhaltReferenztyp
+*    es_sales_item_in-ref_doc_ca_long      =                                                  "SD-Belegtyp
+*    es_sales_item_in-incotermsv           =                                                  "Incoterm-Version
+*    es_sales_item_in-incoterms2l          =                                                  "Incoterms Standort 1
+*    es_sales_item_in-incoterms3l          =                                                  "Incoterms Standort 2
+*    es_sales_item_in-material_long        =                                                  "Material
+*    es_sales_item_in-pr_ref_mat_long      =                                                  "Preismaterial
+*    es_sales_item_in-mat_entrd_long       =                                                  "Eingegebenes Mat.
+*    es_sales_item_in-po_quan              =                                                  "Bestellmenge
+*    es_sales_item_in-po_unit              =                                                  "Bestellmengeneinheit
+*    es_sales_item_in-req_seg_long         =                                                  "Bedarfssegment
+*    es_sales_item_in-z_land_a             =                                                  "Land für Auskunft
+*    es_sales_item_in-zzpbeleg             =                                                  "Inkassobelegnr. Vorsystem
+
+*--------------------------------------------------------------------*
+* SALES_ITEM_INX - Ankreuzleiste Positionsdaten Position 010
+
+*Die einzelnen Komponenten eines Vertreibsbeleges können sowohl mit auch als ohne Ankreuzleiste erzeugt werden.
+*Entscheidet man sich für die erstere Möglichkeit, werden nur Felder übernommen, die ungleich SPACE sind.
+*Im zweiten Fall (Feld UPDATEFLAG der Leiste muß I sein) werden nur Felder übernommen, die in der Leiste ein 'X' haben.
+*Dadurch können Felder, die vom System mit Defaultwerten vorbelegt werden, wieder auf SPACE gesetzt werden.
+*--------------------------------------------------------------------*
+
+*    es_sales_item_inx-itm_number           = '000010'.                                        "Position
+*    es_sales_item_inx-updateflag           = 'I'.                                             "
+*    es_sales_item_inx-hg_lv_item           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-po_itm_no            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-material             = 'X'.                                             "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-alt_to_itm           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-cust_mat22           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-batch                =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-dlv_group            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-part_dlv             =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-reason_rej           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-bill_block           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-bill_date            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-plant                =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-store_loc            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-target_qty           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-target_qu            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-t_unit_iso           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-item_categ           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-short_text           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-prc_group1           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-prc_group2           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-prc_group3           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-prc_group4           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-prc_group5           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-prod_hiera           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-matl_group           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-purch_no_c           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-purch_date           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-po_method            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-ref_1                =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-purch_no_s           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-po_dat_s             =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-po_meth_s            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-ref_1_s              =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-poitm_no_s           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-price_grp            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-cust_group           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-sales_dist           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-price_list           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-incoterms1           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-incoterms2           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-ordcomp_in           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-bill_sched           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-invo_sched           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-mn_invoice           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-ex_rate_fi           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-add_val_dy           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-fix_val_dy           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-pmnttrms             =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-pymt_meth            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-accnt_asgn           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-exchg_rate           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-price_date           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-serv_date            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-dunn_key             =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-dunn_block           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-promotion            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-pmtgar_pro           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-doc_num_fi           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-departm_no           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-rec_point            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-cstcndgrp1           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-cstcndgrp2           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-cstcndgrp3           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-cstcndgrp4           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-cstcndgrp5           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-dlv_time             =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-sales_unit           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-trg_qty_no           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-trgqty_den           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-rnddlv_qty           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-maxdevamnt           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-maxdevper            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-maxdev_day           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-usage_ind            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-fixed_quan           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-unlmt_dlv            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-overdlvtol           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-unddlv_tol           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-division             =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-salqtynum            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-salqtyden            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-gross_wght           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-net_weight           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-untof_wght           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-volume               =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-volunit              =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-dlv_prio             =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-ship_point           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-route                =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-tax_class1           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-tax_class2           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-tax_class3           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-tax_class4           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-tax_class5           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-tax_class6           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-tax_class7           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-tax_class8           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-tax_class9           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-mat_pr_grp           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-val_type             =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-fixdat_qty           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-bomexpl_no           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-resanalkey           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-reqmts_typ           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-no_gr_post           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-bus_transt           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-overhd_key           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-cstg_sheet           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-matfrgtgrp           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-pldlvshdin           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-seq_no               =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-bil_form             =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-dli_profil           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-rev_type             =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-begdem_per           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-pr_ref_mat           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-refobjtype           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-refobjkey            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-reflogsys            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-order_prob           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-max_pl_dlv           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-cfop_code            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-taxlawicms           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-taxlawipi            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-sd_taxcode           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-assort_mod           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-comp_quant           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-target_val           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-profit_ctr           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-orderid              =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-wbs_elem             =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-deprec_per           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-ref_doc              =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-ref_doc_it           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-ref_doc_ca           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-cust_mat35           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-exch_rate_fi_v       =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-exchg_rate_v         =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-itemguid_atp         =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-val_contr            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-val_con_i            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-config_id            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-inst_id              =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-mat_ext              =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-mat_guid             =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-mat_vers             =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-p_mat_ext            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-p_mat_guid           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-p_mat_vers           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-func_area            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-altern_bom           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-fkk_conacct          =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-ean_upc              =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-prodcat              =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-ship_type            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-s_proc_ind           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-bill_rel             =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-vw_uepos             =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-campaign             =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-dlvschduse           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-selection            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-mat_entrd            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-log_system_own       =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-itm_type_usage       =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-mat_entrd_external   =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-mat_entrd_guid       =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-mat_entrd_version    =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-loc_taxcat           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-loc_zerovat          =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-loc_actcode          =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-loc_disttype         =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-loc_txrelclas        =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-calc_motive          =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-fund                 =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-funds_ctr            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-cmmt_item            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-grant_nbr            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-budget_period        =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-taxlawiss            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-taxlawcofins         =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-taxlawpis            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-treasury_acc_symbol  =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-business_event_tcode =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-modification_allowed =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-cancellation_allowed =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-payment_methods      =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-business_partner_no  =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-reporting_freq       =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-cfop_long            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-sepa_mandate_id      =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-req_segment          =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-tp_sublevl           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-tp_agencid           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-tp_altraid           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-tp_begper            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-tp_endper            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-tp_avtype            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-tp_main_acct         =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-tp_sub_acct          =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-tp_betc              =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-revacc_refid         =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-revacc_reftype       =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-ref_doc_ca_long      =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-incotermsv           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-incoterms2l          =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-incoterms3l          =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-material_long        =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-pr_ref_mat_long      =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-mat_entrd_long       =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-po_quan              =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-po_unit              =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-req_seg_long         =                                                  "Änderungsinformation Nutzdatenfeld
+
+  ENDMETHOD.
+
+  METHOD get_sales_item_020.
+
+*--------------------------------------------------------------------*
+* SALES_ITEMS_IN - Positionsdaten Position 020
+*--------------------------------------------------------------------*
+
+    es_sales_item_in-itm_number            = 20.                                              "Position
+*    es_sales_item_in-hg_lv_item           =                                                  "Übergeordn. Position
+*    es_sales_item_in-po_itm_no            =                                                  "Bestellposition
+    es_sales_item_in-material              = '000000000000004985'.                            "Material
+*    es_sales_item_in-alt_to_itm           =                                                  "Alternativ zu Pos.
+*    es_sales_item_in-cust_mat22           =                                                  "Kundenmaterial
+*    es_sales_item_in-batch                =                                                  "Charge
+*    es_sales_item_in-dlv_group            =                                                  "Liefergruppe
+*    es_sales_item_in-part_dlv             =                                                  "Teillieferung/Pos.
+*    es_sales_item_in-reason_rej           =                                                  "Absagegrund
+*    es_sales_item_in-bill_block           =                                                  "Sperre
+*    es_sales_item_in-bill_date            =                                                  "Fakturadatum
+*    es_sales_item_in-plant                =                                                  "Werk
+*    es_sales_item_in-store_loc            =                                                  "Lagerort
+    es_sales_item_in-target_qty            = 2.                                                "Zielmenge
+*    es_sales_item_in-target_qu            =                                                  "Zielmengeneinheit
+*    es_sales_item_in-t_unit_iso           =                                                  "ZielME ISO-Code
+*    es_sales_item_in-item_categ           = 'L2W'.                                            "Positionstyp
+*    es_sales_item_in-short_text           =                                                  "Bezeichnung
+*    es_sales_item_in-prc_group1           =                                                  "Materialgruppe 1
+*    es_sales_item_in-prc_group2           =                                                  "Materialgruppe 2
+*    es_sales_item_in-prc_group3           =                                                  "Materialgruppe 3
+*    es_sales_item_in-prc_group4           =                                                  "Materialgruppe 4
+*    es_sales_item_in-prc_group5           =                                                  "Materialgruppe 5
+*    es_sales_item_in-prod_hiera           =                                                  "Produkthierarchie
+*    es_sales_item_in-matl_group           =                                                  "Warengruppe
+*    es_sales_item_in-purch_no_c           =                                                  "Bestellnummer
+*    es_sales_item_in-purch_date           =                                                  "Bestelldatum
+*    es_sales_item_in-po_method            =                                                  "Bestellart
+*    es_sales_item_in-ref_1                =                                                  "Ihr Zeichen
+*    es_sales_item_in-purch_no_s           =                                                  "Bestellnummer
+*    es_sales_item_in-po_dat_s             =                                                  "Bestelldatum
+*    es_sales_item_in-po_meth_s            =                                                  "Bestellart
+*    es_sales_item_in-ref_1_s              =                                                  "Ihr Zeichen
+*    es_sales_item_in-poitm_no_s           =                                                  "Bestellpositionsnr.
+*    es_sales_item_in-price_grp            =                                                  "Preisgruppe
+*    es_sales_item_in-cust_group           =                                                  "Kundengruppe
+*    es_sales_item_in-sales_dist           =                                                  "Kundenbezirk
+*    es_sales_item_in-price_list           =                                                  "Preisliste
+*    es_sales_item_in-incoterms1           =                                                  "Incoterms
+*    es_sales_item_in-incoterms2           =                                                  "Incoterms Teil 2
+*    es_sales_item_in-ordcomp_in           =                                                  "AuftrZusammenführung
+*    es_sales_item_in-bill_sched           =                                                  "Rechnungstermine
+*    es_sales_item_in-invo_sched           =                                                  "RechListenTermine
+*    es_sales_item_in-mn_invoice           =                                                  "Rechnungsnachbearb.
+*    es_sales_item_in-ex_rate_fi           =                                                  "Kurs f.Buchhaltung
+*    es_sales_item_in-add_val_dy           =                                                  "Zusätzl. Valutatage
+*    es_sales_item_in-fix_val_dy           =                                                  "Valuta-Fixdatum
+*    es_sales_item_in-pmnttrms             =                                                  "Zahlungsbedingung
+*    es_sales_item_in-pymt_meth            =                                                  "Zahlweg
+*    es_sales_item_in-accnt_asgn           =                                                  "Kontierungsgr. Deb.
+*    es_sales_item_in-exchg_rate           =                                                  "Kurs
+*    es_sales_item_in-price_date           =                                                  "Preisdatum
+*    es_sales_item_in-serv_date            =                                                  "Leistungserst.Dat
+*    es_sales_item_in-dunn_key             =                                                  "Mahnschlüssel
+*    es_sales_item_in-dunn_block           =                                                  "Mahnsperre
+*    es_sales_item_in-promotion            =                                                  "Aktion
+*    es_sales_item_in-pmtgar_pro           =                                                  "Absicherungsschema
+*    es_sales_item_in-doc_num_fi           =                                                  "Finanzdokumentnummer
+*    es_sales_item_in-departm_no           =                                                  "Abteilung
+*    es_sales_item_in-rec_point            =                                                  "Empfangsstelle
+*    es_sales_item_in-cstcndgrp1           =                                                  "Konditionsgruppe 1
+*    es_sales_item_in-cstcndgrp2           =                                                  "Konditionsgruppe 2
+*    es_sales_item_in-cstcndgrp3           =                                                  "Konditionsgruppe 3
+*    es_sales_item_in-cstcndgrp4           =                                                  "Konditionsgruppe 4
+*    es_sales_item_in-cstcndgrp5           =                                                  "Konditionsgruppe 5
+*    es_sales_item_in-dlv_time             =                                                  "Lieferzeit
+*    es_sales_item_in-sales_unit           =                                                  "Verkaufsmengeneinh.
+*    es_sales_item_in-s_unit_iso           =                                                  "ISO-Code
+*    es_sales_item_in-trg_qty_no           =                                                  "Zähler Ziel -> Lager
+*    es_sales_item_in-trgqty_den           =                                                  "Nenner Ziel -> Lager
+*    es_sales_item_in-rnddlv_qty           =                                                  "Rundungsmenge Lief.
+*    es_sales_item_in-maxdevamnt           =                                                  "Abweichung absolut
+*    es_sales_item_in-maxdevper            =                                                  "Abweichung proz.
+*    es_sales_item_in-maxdev_day           =                                                  "Anz.Tage Abw.
+*    es_sales_item_in-usage_ind            =                                                  "Ausführung
+*    es_sales_item_in-fixed_quan           =                                                  "Menge ist fix
+*    es_sales_item_in-unlmt_dlv            =                                                  "Unbegrenzte Überl.
+*    es_sales_item_in-overdlvtol           =                                                  "Tol.Überlieferung
+*    es_sales_item_in-unddlv_tol           =                                                  "Tol.Unterlieferung
+*    es_sales_item_in-division             =                                                  "Sparte
+*    es_sales_item_in-salqtynum            =                                                  "Zaehler
+*    es_sales_item_in-salqtyden            =                                                  "Nenner
+*    es_sales_item_in-gross_wght           =                                                  "Bruttogewicht
+*    es_sales_item_in-net_weight           =                                                  "Nettogewicht
+*    es_sales_item_in-untof_wght           =                                                  "Gewichtseinheit
+*    es_sales_item_in-unof_wtiso           =                                                  "Gewichtseinheit ISO
+*    es_sales_item_in-volume               =                                                  "Volumen
+*    es_sales_item_in-volunit              =                                                  "Volumeneinheit
+*    es_sales_item_in-volunitiso           =                                                  "Volumeneinheit ISO
+*    es_sales_item_in-dlv_prio             =                                                  "Lieferpriorität
+*    es_sales_item_in-ship_point           =                                                  "Versandstelle/Annahmestelle
+*    es_sales_item_in-route                =                                                  "Route
+*    es_sales_item_in-created_by           =                                                  "Angelegt von
+*    es_sales_item_in-tax_class1           =                                                  "Steuerklassifikation
+*    es_sales_item_in-tax_class2           =                                                  "Steuerklassifikation
+*    es_sales_item_in-tax_class3           =                                                  "Steuerklassifikation
+*    es_sales_item_in-tax_class4           =                                                  "Steuerklassifikation
+*    es_sales_item_in-tax_class5           =                                                  "Steuerklassifikation
+*    es_sales_item_in-tax_class6           =                                                  "Steuerklassifikation
+*    es_sales_item_in-tax_class7           =                                                  "Steuerklassifikation
+*    es_sales_item_in-tax_class8           =                                                  "Steuerklassifikation
+*    es_sales_item_in-tax_class9           =                                                  "Steuerklassifikation
+*    es_sales_item_in-mat_pr_grp           =                                                  "Materialgruppe
+*    es_sales_item_in-val_type             =                                                  "Bewertungsart
+*    es_sales_item_in-fixdat_qty           =                                                  "Termin u.Menge fix
+*    es_sales_item_in-bomexpl_no           =                                                  "Seriennummer
+*    es_sales_item_in-resanalkey           =                                                  "Abgrenzungsschlüssel
+*    es_sales_item_in-reqmts_typ           =                                                  "Bedarfsart
+*    es_sales_item_in-no_gr_post           =                                                  "kein WE beim Kunden
+*    es_sales_item_in-bus_transt           =                                                  "Geschäftsart
+*    es_sales_item_in-overhd_key           =                                                  "Zuschlagsschlüssel
+*    es_sales_item_in-cstg_sheet           =                                                  "Kalkulationsschema
+*    es_sales_item_in-matfrgtgrp           =                                                  "MatFraGruppe
+*    es_sales_item_in-pldlvshdin           =                                                  "Planabrufvorschrift
+*    es_sales_item_in-seq_no               =                                                  "Sequenz-Nummer
+*    es_sales_item_in-bil_form             =                                                  "Fakturierform
+*    es_sales_item_in-dli_profil           =                                                  "DPP-Profil
+*    es_sales_item_in-rev_type             =                                                  "Erlösrealisierungstyp
+*    es_sales_item_in-begdem_per           =                                                  "Regel f. AbgrenzBeginndatum
+*    es_sales_item_in-pr_ref_mat           =                                                  "Preismaterial
+*    es_sales_item_in-refobjtype           =                                                  "Objekttyp
+*    es_sales_item_in-refobjkey            =                                                  "Schlüssel
+*    es_sales_item_in-reflogsys            =                                                  "Logisches System
+*    es_sales_item_in-order_prob           =                                                  "Auftr.Wahrscheinl
+*    es_sales_item_in-max_pl_dlv           =                                                  "Max.Teillieferungen
+*    es_sales_item_in-cfop_code            =                                                  "CFOP
+*    es_sales_item_in-taxlawicms           =                                                  "Gesetz ICMS
+*    es_sales_item_in-taxlawipi            =                                                  "Gesetz IPI
+*    es_sales_item_in-sd_taxcode           =                                                  "Steuerkennzeichen
+*    es_sales_item_in-assort_mod           =                                                  "Baustein
+*    es_sales_item_in-comp_quant           =                                                  "Komponentenmenge
+*    es_sales_item_in-target_val           =                                                  "Währungsbetrag an BAPI-Schnittstellen
+*    es_sales_item_in-currency             =                                                  "Belegwährung
+*    es_sales_item_in-curr_iso             =                                                  "ISO-Code Währung
+*    es_sales_item_in-profit_ctr           =                                                  "Profitcenter
+*    es_sales_item_in-orderid              =                                                  "Auftrag
+*    es_sales_item_in-wbs_elem             =                                                  "PSP-Element
+*    es_sales_item_in-deprec_per           =                                                  "Abschreibungsgrad
+*    es_sales_item_in-ref_doc              =                                                  "Vorlagebeleg
+*    es_sales_item_in-ref_doc_it           =                                                  "Vorlage Gesch. Pos.
+*    es_sales_item_in-ref_doc_ca           =                                                  "Vorgängerbelegtyp
+*    es_sales_item_in-cust_mat35           =                                                  "Kundenmaterial
+*    es_sales_item_in-exch_rate_fi_v       =                                                  "Kurs f.Buchhaltung
+*    es_sales_item_in-exchg_rate_v         =                                                  "Kurs
+*    es_sales_item_in-itemguid_atp         =                                                  "Guid für Position
+*    es_sales_item_in-val_contr            =                                                  "Wertkontraktnummer
+*    es_sales_item_in-val_con_i            =                                                  "Wertkontraktposition
+*    es_sales_item_in-config_id            =                                                  "Konfigurations ID
+*    es_sales_item_in-inst_id              =                                                  "Instanznummer
+*    es_sales_item_in-mat_ext              =                                                  "Materialnummer
+*    es_sales_item_in-mat_guid             =                                                  "GUID (extern)
+*    es_sales_item_in-mat_vers             =                                                  "Versionsnummer
+*    es_sales_item_in-p_mat_ext            =                                                  "Materialnummer
+*    es_sales_item_in-p_mat_guid           =                                                  "GUID (extern)
+*    es_sales_item_in-p_mat_vers           =                                                  "Versionsnummer
+*    es_sales_item_in-func_area            =                                                  "Funktionsbereich
+*    es_sales_item_in-altern_bom           =                                                  "StlAlternative
+*    es_sales_item_in-fkk_conacct          =                                                  "
+*    es_sales_item_in-ean_upc              =                                                  "EAN/UPC-Code
+*    es_sales_item_in-prodcat              =                                                  "Katalog
+*    es_sales_item_in-ship_type            =                                                  "Versandart
+*    es_sales_item_in-s_proc_ind           =                                                  "Sonderabwicklungskennz.
+*    es_sales_item_in-func_area_long       =                                                  "Funktionsbereich
+*    es_sales_item_in-bill_rel             =                                                  "Fakturarelevanz
+*    es_sales_item_in-vw_uepos             =                                                  "Verwendung UEPOS
+*    es_sales_item_in-campaign             =                                                  "CGPL_GUID
+*    es_sales_item_in-dlvschduse           =                                                  "Verwendung
+*    es_sales_item_in-cfop_long            =                                                  "CFOP
+*    es_sales_item_in-selection            =                                                  "Selektions-ID
+*    es_sales_item_in-mat_entrd            =                                                  "Eingeg. Material
+*    es_sales_item_in-log_system_own       =                                                  "Logisches System
+*    es_sales_item_in-itm_type_usage       =                                                  "Positionsverwendung
+*    es_sales_item_in-taxlawiss            =                                                  "ISS-Gesetz
+*    es_sales_item_in-mat_entrd_external   =                                                  "Materialnummer
+*    es_sales_item_in-mat_entrd_guid       =                                                  "GUID (extern)
+*    es_sales_item_in-mat_entrd_version    =                                                  "Versionsnummer
+*    es_sales_item_in-loc_taxcat           =                                                  "Steuerart
+*    es_sales_item_in-loc_zerovat          =                                                  "Grund 0 MwSt.
+*    es_sales_item_in-loc_actcode          =                                                  "Tätigkeit BE-Steuer
+*    es_sales_item_in-loc_disttype         =                                                  "Verteilungsart
+*    es_sales_item_in-loc_txrelclas        =                                                  "Steuerrel.Klass
+*    es_sales_item_in-calc_motive          =                                                  "Berechnungsmotiv
+*    es_sales_item_in-compreas             =                                                  "Abkürzung Reklamationsgrund
+*    es_sales_item_in-fund                 =                                                  "Fonds
+*    es_sales_item_in-funds_ctr            =                                                  "Finanzstelle
+*    es_sales_item_in-cmmt_item            =                                                  "Finanzposition
+*    es_sales_item_in-grant_nbr            =                                                  "Förderung
+*    es_sales_item_in-budget_period        =                                                  "Budgetperiode
+*    es_sales_item_in-taxlawcofins         =                                                  "COFINS Gesetz
+*    es_sales_item_in-taxlawpis            =                                                  "PIS-Gesetz
+*    es_sales_item_in-treasury_acc_symbol  =                                                  "Treasury-Kontensymbol
+*    es_sales_item_in-business_event_tcode =                                                  "TCode GeschEreignis
+*    es_sales_item_in-modification_allowed =                                                  "Änderung zulässig
+*    es_sales_item_in-cancellation_allowed =                                                  "Storno zulässig
+*    es_sales_item_in-payment_methods      =                                                  "Zahlwege
+*    es_sales_item_in-business_partner_no  =                                                  "Geschäftspartnernr.
+*    es_sales_item_in-reporting_freq       =                                                  "Berichtshäufigkeit
+*    es_sales_item_in-sepa_mandate_id      =                                                  "Mandatsreferenz
+*    es_sales_item_in-req_segment          =                                                  "Bedarfssegment
+*    es_sales_item_in-revacc_refid         =                                                  "Erlösbuchhaltung: Ref.-ID
+*    es_sales_item_in-revacc_reftype       =                                                  "ErlösbuchhaltReferenztyp
+*    es_sales_item_in-ref_doc_ca_long      =                                                  "SD-Belegtyp
+*    es_sales_item_in-incotermsv           =                                                  "Incoterm-Version
+*    es_sales_item_in-incoterms2l          =                                                  "Incoterms Standort 1
+*    es_sales_item_in-incoterms3l          =                                                  "Incoterms Standort 2
+*    es_sales_item_in-material_long        =                                                  "Material
+*    es_sales_item_in-pr_ref_mat_long      =                                                  "Preismaterial
+*    es_sales_item_in-mat_entrd_long       =                                                  "Eingegebenes Mat.
+*    es_sales_item_in-po_quan              =                                                  "Bestellmenge
+*    es_sales_item_in-po_unit              =                                                  "Bestellmengeneinheit
+*    es_sales_item_in-req_seg_long         =                                                  "Bedarfssegment
+*    es_sales_item_in-z_land_a             =                                                  "Land für Auskunft
+*    es_sales_item_in-zzpbeleg             =                                                  "Inkassobelegnr. Vorsystem
+
+*--------------------------------------------------------------------*
+* SALES_ITEM_INX - Ankreuzleiste Positionsdaten Position 020
+*--------------------------------------------------------------------*
+
+*    es_sales_item_inx-itm_number           = '000020'.                                        "Position
+*    es_sales_item_inx-updateflag           = 'I'.                                             "
+*    es_sales_item_inx-hg_lv_item           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-po_itm_no            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-material             = 'X'.                                             "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-alt_to_itm           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-cust_mat22           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-batch                =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-dlv_group            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-part_dlv             =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-reason_rej           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-bill_block           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-bill_date            =                                                   "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-plant                =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-store_loc            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-target_qty           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-target_qu            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-t_unit_iso           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-item_categ           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-short_text           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-prc_group1           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-prc_group2           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-prc_group3           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-prc_group4           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-prc_group5           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-prod_hiera           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-matl_group           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-purch_no_c           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-purch_date           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-po_method            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-ref_1                =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-purch_no_s           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-po_dat_s             =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-po_meth_s            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-ref_1_s              =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-poitm_no_s           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-price_grp            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-cust_group           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-sales_dist           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-price_list           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-incoterms1           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-incoterms2           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-ordcomp_in           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-bill_sched           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-invo_sched           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-mn_invoice           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-ex_rate_fi           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-add_val_dy           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-fix_val_dy           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-pmnttrms             =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-pymt_meth            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-accnt_asgn           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-exchg_rate           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-price_date           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-serv_date            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-dunn_key             =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-dunn_block           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-promotion            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-pmtgar_pro           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-doc_num_fi           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-departm_no           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-rec_point            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-cstcndgrp1           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-cstcndgrp2           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-cstcndgrp3           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-cstcndgrp4           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-cstcndgrp5           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-dlv_time             =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-sales_unit           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-trg_qty_no           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-trgqty_den           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-rnddlv_qty           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-maxdevamnt           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-maxdevper            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-maxdev_day           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-usage_ind            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-fixed_quan           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-unlmt_dlv            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-overdlvtol           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-unddlv_tol           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-division             =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-salqtynum            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-salqtyden            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-gross_wght           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-net_weight           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-untof_wght           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-volume               =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-volunit              =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-dlv_prio             =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-ship_point           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-route                =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-tax_class1           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-tax_class2           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-tax_class3           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-tax_class4           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-tax_class5           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-tax_class6           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-tax_class7           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-tax_class8           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-tax_class9           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-mat_pr_grp           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-val_type             =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-fixdat_qty           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-bomexpl_no           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-resanalkey           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-reqmts_typ           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-no_gr_post           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-bus_transt           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-overhd_key           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-cstg_sheet           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-matfrgtgrp           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-pldlvshdin           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-seq_no               =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-bil_form             =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-dli_profil           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-rev_type             =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-begdem_per           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-pr_ref_mat           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-refobjtype           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-refobjkey            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-reflogsys            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-order_prob           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-max_pl_dlv           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-cfop_code            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-taxlawicms           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-taxlawipi            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-sd_taxcode           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-assort_mod           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-comp_quant           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-target_val           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-profit_ctr           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-orderid              =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-wbs_elem             =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-deprec_per           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-ref_doc              =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-ref_doc_it           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-ref_doc_ca           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-cust_mat35           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-exch_rate_fi_v       =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-exchg_rate_v         =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-itemguid_atp         =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-val_contr            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-val_con_i            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-config_id            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-inst_id              =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-mat_ext              =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-mat_guid             =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-mat_vers             =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-p_mat_ext            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-p_mat_guid           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-p_mat_vers           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-func_area            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-altern_bom           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-fkk_conacct          =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-ean_upc              =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-prodcat              =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-ship_type            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-s_proc_ind           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-bill_rel             =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-vw_uepos             =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-campaign             =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-dlvschduse           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-selection            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-mat_entrd            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-log_system_own       =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-itm_type_usage       =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-mat_entrd_external   =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-mat_entrd_guid       =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-mat_entrd_version    =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-loc_taxcat           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-loc_zerovat          =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-loc_actcode          =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-loc_disttype         =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-loc_txrelclas        =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-calc_motive          =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-fund                 =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-funds_ctr            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-cmmt_item            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-grant_nbr            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-budget_period        =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-taxlawiss            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-taxlawcofins         =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-taxlawpis            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-treasury_acc_symbol  =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-business_event_tcode =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-modification_allowed =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-cancellation_allowed =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-payment_methods      =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-business_partner_no  =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-reporting_freq       =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-cfop_long            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-sepa_mandate_id      =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-req_segment          =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-tp_sublevl           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-tp_agencid           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-tp_altraid           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-tp_begper            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-tp_endper            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-tp_avtype            =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-tp_main_acct         =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-tp_sub_acct          =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-tp_betc              =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-revacc_refid         =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-revacc_reftype       =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-ref_doc_ca_long      =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-incotermsv           =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-incoterms2l          =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-incoterms3l          =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-material_long        =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-pr_ref_mat_long      =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-mat_entrd_long       =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-po_quan              =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-po_unit              =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_sales_item_inx-req_seg_long         =                                                  "Änderungsinformation Nutzdatenfeld
+
+  ENDMETHOD.
+
+  METHOD get_conditions.
+
+    DATA ls_condition_in  TYPE bapicond.
+    DATA ls_condition_inx TYPE bapicondx.
+
+    me->get_condition_010( IMPORTING es_condition_in = ls_condition_in
+                                     es_condition_inx = ls_condition_inx ).
+    APPEND ls_condition_in TO et_conditions_in.
+    APPEND ls_condition_inx TO et_conditions_inx.
+
+    CLEAR: ls_condition_in, ls_condition_inx.
+
+    me->get_condition_020( IMPORTING es_condition_in = ls_condition_in
+                                     es_condition_inx = ls_condition_inx ).
+    APPEND ls_condition_in TO et_conditions_in.
+    APPEND ls_condition_inx TO et_conditions_inx.
+
+  ENDMETHOD.
+
+  METHOD get_condition_010.
+
+*--------------------------------------------------------------------*
+* SALES_CONDITIONS_IN - Kondition PR00 Position 010
+*--------------------------------------------------------------------*
+
+    es_condition_in-itm_number = 10.                                               "Position
+*    es_condition_in-cond_st_no =                                                  "Stufennummer
+*    es_condition_in-cond_count =                                                  "Zähler
+    es_condition_in-cond_type  = 'PR00'.                                           "Konditionsart
+    es_condition_in-cond_value = '1111.11'.                                        "Konditionsbetrag
+    es_condition_in-currency   = 'EUR'.                                            "Währung
+*    es_condition_in-cond_unit  =                                                  "Mengeneinheit
+*    es_condition_in-cond_p_unt =                                                  "Preiseinheit
+*    es_condition_in-curr_iso   =                                                  "ISO-Code Währung
+*    es_condition_in-cd_unt_iso =                                                  "ME ISO Konditon
+*    es_condition_in-refobjtype =                                                  "Objekttyp
+*    es_condition_in-refobjkey  =                                                  "Schlüssel
+*    es_condition_in-reflogsys  =                                                  "Logisches System
+*    es_condition_in-applicatio =                                                  "Applikation
+*    es_condition_in-conpricdat =                                                  "Kond.Preisstelldatum
+*    es_condition_in-calctypcon =                                                  "Rechenregel
+*    es_condition_in-conbaseval =                                                  "Konditionsbasis
+*    es_condition_in-conexchrat =                                                  "Konditionskurs
+*    es_condition_in-numconvert =                                                  "Zähler Kond.umrechn.
+*    es_condition_in-denominato =                                                  "Nenner Kond.-Umrechn
+*    es_condition_in-condtype   =                                                  "Konditionstyp
+*    es_condition_in-stat_con   =                                                  "Statistisch
+*    es_condition_in-scaletype  =                                                  "Staffelart
+*    es_condition_in-accruals   =                                                  "Rückstellung
+*    es_condition_in-coninvolst =                                                  "RechListenkondition
+*    es_condition_in-condorigin =                                                  "Kondition Herkunft
+*    es_condition_in-groupcond  =                                                  "Gruppenkondition
+*    es_condition_in-cond_updat =                                                  "Konditionsupdate
+*    es_condition_in-access_seq =                                                  "Zugriff
+*    es_condition_in-condcount  =                                                  "Lfd.Nummer Kondition
+*    es_condition_in-roundoffdi =                                                  "Währungsbetrag an BAPI-Schnittstellen
+*    es_condition_in-condvalue  =                                                  "Konditionswert
+*    es_condition_in-currency_2 =                                                  "Belegwährung
+*    es_condition_in-curr_iso_2 =                                                  "ISO-Code Währung
+*    es_condition_in-condcntrl  =                                                  "Kondition Steuerung
+*    es_condition_in-condisacti =                                                  "Kondition inaktiv
+*    es_condition_in-condclass  =                                                  "Konditionsklasse
+*    es_condition_in-factbasval =                                                  "Konditionsfaktor
+*    es_condition_in-scalebasin =                                                  "Bezugsgröße
+*    es_condition_in-scalbasval =                                                  "Staffelbasis Kond.
+*    es_condition_in-unitmeasur =                                                  "Staffelmengeneinheit
+*    es_condition_in-iso_unit   =                                                  "ISO-Code
+*    es_condition_in-currenckey =                                                  "Staffelwaehrung
+*    es_condition_in-curreniso  =                                                  "ISO-Code Währung
+*    es_condition_in-condincomp =                                                  "InterneVerrKondition
+*    es_condition_in-condconfig =                                                  "Variantenkondition
+*    es_condition_in-condchaman =                                                  "ManuellGeändert
+*    es_condition_in-cond_no    =                                                  "Nr. Konditionssatz
+*    es_condition_in-tax_code   =                                                  "Steuerkennzeichen
+*    es_condition_in-varcond    =                                                  "Variante
+*    es_condition_in-accountkey =                                                  "Kontoschlüssel
+*    es_condition_in-account_ke =                                                  "RückstellKontenschl.
+*    es_condition_in-wt_withcd  =                                                  "Quellensteuerkennzeichen
+*    es_condition_in-structcond =                                                  "Strukturkondition
+*    es_condition_in-factconbas =                                                  "Konditionsfaktor
+*    es_condition_in-condcoinhd =                                                  "Zähler Kopfkond.
+
+*--------------------------------------------------------------------*
+* SALES_CONDITIONS_IN - Ankreuzleiste Kondition PR00 Position 010
+*--------------------------------------------------------------------*
+
+*    es_condition_inx-itm_number =                                                  "Position
+*    es_condition_inx-cond_st_no =                                                  "Stufennummer
+*    es_condition_inx-cond_count =                                                  "Lfd.Nummer Kondition
+*    es_condition_inx-cond_type  =                                                  "Konditionsart
+*    es_condition_inx-updateflag =                                                  "
+*    es_condition_inx-cond_value =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_condition_inx-currency   =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_condition_inx-cond_unit  =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_condition_inx-cond_p_unt =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_condition_inx-varcond    =                                                  "Variante
+
+  ENDMETHOD.
+
+  METHOD get_condition_020.
+
+*--------------------------------------------------------------------*
+* SALES_CONDITIONS_IN - Kondition PR00 Position 020
+*--------------------------------------------------------------------*
+
+    es_condition_in-itm_number  = 20.                                              "Position
+*    es_condition_in-cond_st_no =                                                  "Stufennummer
+*    es_condition_in-cond_count =                                                  "Zähler
+    es_condition_in-cond_type   = 'PR00'.                                          "Konditionsart
+    es_condition_in-cond_value  = '2222.22'.                                       "Konditionsbetrag
+    es_condition_in-currency    = 'EUR'.                                           "Währung
+*    es_condition_in-cond_unit  =                                                  "Mengeneinheit
+*    es_condition_in-cond_p_unt =                                                  "Preiseinheit
+*    es_condition_in-curr_iso   =                                                  "ISO-Code Währung
+*    es_condition_in-cd_unt_iso =                                                  "ME ISO Konditon
+*    es_condition_in-refobjtype =                                                  "Objekttyp
+*    es_condition_in-refobjkey  =                                                  "Schlüssel
+*    es_condition_in-reflogsys  =                                                  "Logisches System
+*    es_condition_in-applicatio =                                                  "Applikation
+*    es_condition_in-conpricdat =                                                  "Kond.Preisstelldatum
+*    es_condition_in-calctypcon =                                                  "Rechenregel
+*    es_condition_in-conbaseval =                                                  "Konditionsbasis
+*    es_condition_in-conexchrat =                                                  "Konditionskurs
+*    es_condition_in-numconvert =                                                  "Zähler Kond.umrechn.
+*    es_condition_in-denominato =                                                  "Nenner Kond.-Umrechn
+*    es_condition_in-condtype   =                                                  "Konditionstyp
+*    es_condition_in-stat_con   =                                                  "Statistisch
+*    es_condition_in-scaletype  =                                                  "Staffelart
+*    es_condition_in-accruals   =                                                  "Rückstellung
+*    es_condition_in-coninvolst =                                                  "RechListenkondition
+*    es_condition_in-condorigin =                                                  "Kondition Herkunft
+*    es_condition_in-groupcond  =                                                  "Gruppenkondition
+*    es_condition_in-cond_updat =                                                  "Konditionsupdate
+*    es_condition_in-access_seq =                                                  "Zugriff
+*    es_condition_in-condcount  =                                                  "Lfd.Nummer Kondition
+*    es_condition_in-roundoffdi =                                                  "Währungsbetrag an BAPI-Schnittstellen
+*    es_condition_in-condvalue  =                                                  "Konditionswert
+*    es_condition_in-currency_2 =                                                  "Belegwährung
+*    es_condition_in-curr_iso_2 =                                                  "ISO-Code Währung
+*    es_condition_in-condcntrl  =                                                  "Kondition Steuerung
+*    es_condition_in-condisacti =                                                  "Kondition inaktiv
+*    es_condition_in-condclass  =                                                  "Konditionsklasse
+*    es_condition_in-factbasval =                                                  "Konditionsfaktor
+*    es_condition_in-scalebasin =                                                  "Bezugsgröße
+*    es_condition_in-scalbasval =                                                  "Staffelbasis Kond.
+*    es_condition_in-unitmeasur =                                                  "Staffelmengeneinheit
+*    es_condition_in-iso_unit   =                                                  "ISO-Code
+*    es_condition_in-currenckey =                                                  "Staffelwaehrung
+*    es_condition_in-curreniso  =                                                  "ISO-Code Währung
+*    es_condition_in-condincomp =                                                  "InterneVerrKondition
+*    es_condition_in-condconfig =                                                  "Variantenkondition
+*    es_condition_in-condchaman =                                                  "ManuellGeändert
+*    es_condition_in-cond_no    =                                                  "Nr. Konditionssatz
+*    es_condition_in-tax_code   =                                                  "Steuerkennzeichen
+*    es_condition_in-varcond    =                                                  "Variante
+*    es_condition_in-accountkey =                                                  "Kontoschlüssel
+*    es_condition_in-account_ke =                                                  "RückstellKontenschl.
+*    es_condition_in-wt_withcd  =                                                  "Quellensteuerkennzeichen
+*    es_condition_in-structcond =                                                  "Strukturkondition
+*    es_condition_in-factconbas =                                                  "Konditionsfaktor
+*    es_condition_in-condcoinhd =                                                  "Zähler Kopfkond.
+
+*--------------------------------------------------------------------*
+* SALES_CONDITIONS_IN - Ankreuzleiste Kondition PR00 Position 020
+*--------------------------------------------------------------------*
+
+*    es_condition_inx-itm_number =                                                  "Position
+*    es_condition_inx-cond_st_no =                                                  "Stufennummer
+*    es_condition_inx-cond_count =                                                  "Lfd.Nummer Kondition
+*    es_condition_inx-cond_type  =                                                  "Konditionsart
+*    es_condition_inx-updateflag =                                                  "
+*    es_condition_inx-cond_value =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_condition_inx-currency   =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_condition_inx-cond_unit  =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_condition_inx-cond_p_unt =                                                  "Änderungsinformation Nutzdatenfeld
+*    es_condition_inx-varcond    =                                                  "Variante
+
+  ENDMETHOD.
+
+  METHOD get_sales_texts.
+
+    DATA lt_sales_texts TYPE bapisdtext_t.
+
+    me->get_sales_texts_010( IMPORTING et_sales_texts = lt_sales_texts ).
+    APPEND LINES OF lt_sales_texts TO et_sales_texts.
+
+    CLEAR: lt_sales_texts.
+
+    me->get_sales_texts_020( IMPORTING et_sales_texts = lt_sales_texts ).
+    APPEND LINES OF lt_sales_texts TO et_sales_texts.
+
+  ENDMETHOD.
+
+  METHOD get_sales_texts_010.
+
+    DATA ls_sales_text TYPE bapisdtext.
+
+*    et_sales_texts-doc_number =                                                 "Verkaufsbeleg
+    ls_sales_text-itm_number = 10.                                               "Position
+    ls_sales_text-text_id    = '0001'. "Materialverkaufstext                     "Text-ID
+    ls_sales_text-langu      = 'DE'.                                             "Sprachenschlüssel
+*    ls_sales_text-langu_iso  =                                                  "Sprache (ISO 639)
+    ls_sales_text-format_col = 1.                                                "Formatspalte
+    ls_sales_text-text_line  = 'Hallo'.                                          "
+*    ls_sales_text-function   =                                                  "Funktion
+
+    APPEND ls_sales_text TO et_sales_texts.
+
+*    et_sales_texts-doc_number =                                                  "Verkaufsbeleg
+    ls_sales_text-itm_number = 10.                                               "Position
+    ls_sales_text-text_id    = '0001'. "Materialverkaufstext                     "Text-ID
+    ls_sales_text-langu      = 'DE'.                                             "Sprachenschlüssel
+*    ls_sales_text-langu_iso  =                                                  "Sprache (ISO 639)
+    ls_sales_text-format_col = 2.                                                "Formatspalte
+    ls_sales_text-text_line  = 'zweite Zeile'.                                   "
+*    ls_sales_text-function   =                                                  "Funktion
+
+    APPEND ls_sales_text TO et_sales_texts.
+
+  ENDMETHOD.
+
+  METHOD get_sales_texts_020.
+
+    DATA ls_sales_text TYPE bapisdtext.
+
+*    ls_sales_text-doc_number =                                                  "Verkaufsbeleg
+    ls_sales_text-itm_number = 20.                                               "Position
+    ls_sales_text-text_id    = '0001'. "Materialverkaufstext                     "Text-ID
+    ls_sales_text-langu      = 'DE'.                                             "Sprachenschlüssel
+*    ls_sales_text-langu_iso  =                                                  "Sprache (ISO 639)
+*    ls_sales_text-format_col =                                                  "Formatspalte
+    ls_sales_text-text_line  = 'Hallo'.                                          "
+*    ls_sales_text-function   =                                                  "Funktion
+
+    APPEND ls_sales_text TO et_sales_texts.
+
+  ENDMETHOD.
+
+ENDCLASS.
+
+*--------------------------------------------------------------------*
+START-OF-SELECTION.
+*--------------------------------------------------------------------*
+
+  DATA ls_sales_header_in TYPE bapisdhd1.
+  DATA ls_sales_header_inx TYPE bapisdhd1x.
+  DATA lt_sales_partners TYPE esales_bapiparnr_tab.
+  DATA lf_created_sales_order TYPE vbeln.
+  DATA lt_sales_items_in TYPE bapisditm_tt.
+  DATA lt_sales_items_inx TYPE bapisditmx_tt.
+  DATA lt_conditions_in TYPE esales_bapicond_tab.
+  DATA lt_conditions_inx TYPE esales_bapicondx_tab.
+  DATA lt_sales_texts TYPE bapisdtext_t.
+  DATA lt_return_bapi TYPE TABLE OF bapiret2.
+  DATA lt_return_commit TYPE bapiret2.
+  DATA lt_return_rollback TYPE bapiret2.
+
+  DATA lr_salesdocument_test TYPE REF TO lcl_salesdocument_test.
+
+
+  CREATE OBJECT lr_salesdocument_test.
+
+  lr_salesdocument_test->get_sales_header( IMPORTING es_sales_header_in = ls_sales_header_in
+                                                     es_sales_header_inx = ls_sales_header_inx ).
+  lr_salesdocument_test->get_sales_partners( IMPORTING et_sales_partners = lt_sales_partners ).
+  lr_salesdocument_test->get_sales_items( IMPORTING et_sales_items_in = lt_sales_items_in
+                                                    et_sales_items_inx = lt_sales_items_inx ).
+  lr_salesdocument_test->get_conditions( IMPORTING et_conditions_in = lt_conditions_in
+                                                   et_conditions_inx = lt_conditions_inx ).
+  lr_salesdocument_test->get_sales_texts( IMPORTING et_sales_texts = lt_sales_texts ).
+
+
+  CALL FUNCTION 'SD_SALESDOCUMENT_CREATE'
+    EXPORTING
+*     SALESDOCUMENT        =                          "Nummer des Vertriebsbeleges
+      sales_header_in      = ls_sales_header_in       "Daten zum Belegkopf
+      sales_header_inx     = ls_sales_header_inx      "Ankreuzleiste zu den Kopfdaten
+*     SENDER               =                          "Logisches System Sender
+*     BINARY_RELATIONSHIPTYPE = ' '                   "Binärer Beziehungstyp (private)
+*     INT_NUMBER_ASSIGNMENT   = ' '                   "int. Positionsnummervergabe
+      behave_when_error    = 'P'                       "Fehlerhandling (' '/P/R)
+*     LOGIC_SWITCH         = ' '                      "interne Steuerungsparameter BAPISDLS
+*     BUSINESS_OBJECT      = ' '                      "Business-Objekt
+*     testrun              = 'X'                      "Testlauf
+*     CONVERT_PARVW_AUART  = ' '                      "Umschlüsselung Partnerrolle + Auftragsart
+*     STATUS_BUFFER_REFRESH   = 'X'                   "Initialisierung des Statusbuffers
+*     CALL_ACTIVE          = ' '                      "Initialisierung des Statusbuffers
+*     I_WITHOUT_INIT       = ' '                      "Ohne Initialisierung
+    IMPORTING
+      salesdocument_ex     = lf_created_sales_order   "Nummer des erzeugten Beleges
+*     SALES_HEADER_OUT     =                          "Bapistructure of VBAK with english field names
+*     SALES_HEADER_STATUS  =                          "Bapistructure of VBUK with english field names
+    TABLES
+      return               = lt_return_bapi           "Rückgabemeldungen
+      sales_items_in       = lt_sales_items_in        "Positionsdaten
+      sales_items_inx      = lt_sales_items_inx       "Ankreuzleiste Positionsdaten
+      sales_partners       = lt_sales_partners        "Belegpartner
+*     SALES_SCHEDULES_IN   =                          "Einteilungsdaten
+*     SALES_SCHEDULES_INX  =                          "Ankreuzleiste Einteilungsdaten
+      sales_conditions_in  = lt_conditions_in         "Konditionen
+      sales_conditions_inx = lt_conditions_inx        "Ankreuzleiste Konditionen
+*     SALES_CFGS_REF       =                          "Konfiguration: Referenzdaten
+*     SALES_CFGS_INST      =                          "Konfiguration: Instanzen
+*     SALES_CFGS_PART_OF   =                          "Konfiguration: Part-of Angaben
+*     SALES_CFGS_VALUE     =                          "Konfiguration: Merkmalswerte
+*     SALES_CFGS_BLOB      =                          "Konfiguration: BLOB interne Daten (SCE)
+*     SALES_CFGS_VK        =                          "Konfiguration: Variantenkonditionsschluessel
+*     SALES_CFGS_REFINST   =                          "Konfiguration: Referenz Position / Instanz
+*     SALES_CCARD          =                          "Kreditkartendaten
+      sales_text           = lt_sales_texts           "Texte
+*     SALES_KEYS           =                          "Ausgabetabelle der Referenzschlüssel
+*     SALES_CONTRACT_IN    =                          "Vertagsdaten
+*     SALES_CONTRACT_INX   =                          "Ankreuzleiste: Vertagsdaten
+*     EXTENSIONIN          =                          "Kundenerweiterung Import
+*     PARTNERADDRESSES     =                          "BAPI-Referenzstruktur für Adressen (Org./Firma)
+*     SALES_SCHED_CONF_IN  =                          "Einteilungsdaten Bestätigung
+*     ITEMS_EX             =                          "Structure of VBAP with english field names
+*     SCHEDULE_EX          =                          "Struture of VBEP with english field names
+*     BUSINESS_EX          =                          "Bapistructure of VBKD with english field names
+*     INCOMPLETE_LOG       =                          "Kommunikationsfelder: Unvollständigkeit
+*     EXTENSIONEX          =                          "Bezugsstruktur für BAPI-Parameter ExtensionIn / ExtensionOut
+*     CONDITIONS_EX        =                          "Kommunikationsfelder zur Pflege der Konditionen im Auftrag
+*     PARTNERS_EX          =                          "Bapistructure of VBPA with english fieldnames
+*     TEXTHEADERS_EX       =                          "Bapistructure of THEAD with english field names
+*     TEXTLINES_EX         =                          "BAPI structure for STX_LINES structure
+*     BATCH_CHARC          =                          "BAPI Übergabestruktur Selektionsdaten CRM -> ERP
+*     CAMPAIGN_ASGN        =                          "BAPI-Struktur zur Tabelle CMPB_ASGN
+*     CONDITIONS_KONV_EX   =                          "Konditionen (Vorgangsdaten)
+    .
+
+  IF lf_created_sales_order IS NOT INITIAL.
+    "Commit bei der Verwendung von BAPIs durchführen
+    CALL FUNCTION 'BAPI_TRANSACTION_COMMIT'
+*   EXPORTING
+*     WAIT          =                          "Benutze das Kommando 'COMMIT AND WAIT'
+      IMPORTING
+        return = lt_return_commit.             "Rückmeldungen
+  ELSE.
+    "Rollback bei der Verwendung von BAPIs durchführen
+    CALL FUNCTION 'BAPI_TRANSACTION_ROLLBACK'
+      IMPORTING
+        return = lt_return_rollback.            "Rückmeldungen
+  ENDIF.
+
+
+  cl_demo_output=>display( data = lt_return_bapi name = 'Return BAPI' ).
+  IF lt_return_commit IS NOT INITIAL.
+    cl_demo_output=>display( data = lt_return_commit name = 'Return COMMIT' ).
+  ENDIF.
+  IF lt_return_rollback IS NOT INITIAL.
+    cl_demo_output=>display( data = lt_return_rollback name = 'Return CALLBACK' ).
+  ENDIF.
